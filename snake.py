@@ -70,12 +70,9 @@ class game:
     def get_state(self):
         state = np.zeros((15, 15))
         for seg in self.snake_list:
-            if self.snake_list.index(seg) == 0:
-                state[seg[1]][seg[0]] = 1
-            else:
-                state[seg[1]][seg[0]] = 2
+            state[seg[1]][seg[0]] = 0.5
 
-        state[self.food[1]][self.food[0]] = 3
+        state[self.food[1]][self.food[0]] = 1
         return state
 
     def distance_to_food(self, seg):
@@ -100,16 +97,13 @@ class game:
         Draws the entire snake.
         '''
         for seg in self.snake_list:
-            if self.snake_list.index(seg) == 0:
-                self.draw_pixel(seg, "#bbbbbb")
-            else:
-                self.draw_pixel(seg, "#ffffff")
+            self.draw_pixel(seg, "#808080")
 
     def draw_food(self):
         '''
         Draws the food.
         '''
-        self.draw_pixel(self.food, "#ff0000")
+        self.draw_pixel(self.food, "#ffffff")
 
     def draw_update(self):
         '''
@@ -193,14 +187,14 @@ class game:
             self.alive = self.detect_dead(new_coords)
 
         if self.alive:
-            if self.distance_to_food(new_coords) < self.distance_to_food(first_segment):
-                self.reward = 0.5
-            elif self.distance_to_food(new_coords) > self.distance_to_food(first_segment):
-                self.reward = -0.5
+            # if self.distance_to_food(new_coords) < self.distance_to_food(first_segment):
+            #     self.reward = 0.5
+            # elif self.distance_to_food(new_coords) > self.distance_to_food(first_segment):
+            #     self.reward = -0.5
 
             if new_coords[0] == self.food[0] and new_coords[1] == self.food[1]:
                 self.eat_food()
-                self.reward = 2
+                self.reward = 1
                 self.snake_list.insert(len(self.snake_list), last_segment)
             else:
                 last_segment[0] = first_segment[0] + x_mod
@@ -209,7 +203,6 @@ class game:
 
             self.draw_update()
         else:
-            self.reward = -5
             self.running = False
 
         self.return_queue.put(np.array([self.get_state(), self.reward]))
