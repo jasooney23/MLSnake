@@ -1,7 +1,8 @@
 {
-    "python.pythonPath": "/Users/jason/anaconda3/envs/MLSnake/bin/python",
+    "python.pythonPath": "c:\\Users\\jason\\anaconda3\\envs\\MLSnake\\python.exe",
     "python.formatting.provider": "autopep8",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "python.dataScience.jupyterServerURI": "local"
 }

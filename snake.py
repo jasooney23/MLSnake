@@ -240,8 +240,8 @@ class game:
         self.reward = 0.1
         self.score = 0
 
-        self.snake_list = [[3, 7], [2, 7], [1, 7]]
-        self.food = [11, 7]
+        self.snake_list = [[5, 7], [4, 7], [3, 7], [2, 7], [1, 7]]
+        self.food = [12, 7]
 
         self.step_queue = queue.Queue(1)
         self.return_queue = return_queue
