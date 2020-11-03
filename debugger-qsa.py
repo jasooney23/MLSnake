@@ -76,15 +76,15 @@ def draw_sidebar():
                        str(frame), font=("Arial", 25))
 
     canvas.create_text(850, 60, fill="black", text="UP: " +
-                       str(value[0][0]), font=("Arial", 16))
+                       str(value[0][0]), font=("Arial", 13))
     canvas.create_text(850, 80, fill="black", text="DOWN: " +
-                       str(value[0][1]), font=("Arial", 16))
+                       str(value[0][1]), font=("Arial", 13))
     canvas.create_text(850, 100, fill="black", text="LEFT: " +
-                       str(value[0][2]), font=("Arial", 16))
+                       str(value[0][2]), font=("Arial", 13))
     canvas.create_text(850, 120, fill="black", text="RIGHT: " +
-                       str(value[0][3]), font=("Arial", 16))
+                       str(value[0][3]), font=("Arial", 13))
     canvas.create_text(850, 140, fill="black", text="NONE: " +
-                       str(value[0][4]), font=("Arial", 16))
+                       str(value[0][4]), font=("Arial", 13))
 
     canvas.create_text(850, 220, fill="gray", text='''
 HOW TO USE:
@@ -97,7 +97,7 @@ CONTROLS:
 Arrow Keys to select frame
 Enter to evaluate frames
 Backspace to clear current frame
-''', font=("Arial", 10))
+''', font=("Arial", 8))
 
 
 def draw_update():
@@ -175,6 +175,7 @@ def update_value(event):
     value = q.predict(np.expand_dims(stack(states), axis=0))
 
     draw_update()
+
 
 def clear_frame(event):
     snake_lists[frame - 1] = []

@@ -4,6 +4,7 @@ import time
 import numpy as np
 import tkinter as tk
 
+
 class game:
     '''
     Creates an instance of a game. Will not advance on its own,
@@ -38,7 +39,7 @@ class game:
         for seg in self.snake_list:
             state[seg[1]][seg[0]] = 0.5
 
-        state[self.food[1]][self.food[0]] = 1
+        state[self.food[1]][self.food[0]] = 100
         return state
 
     def distance_to_food(self, seg):
@@ -159,7 +160,7 @@ class game:
 
             if new_coords[0] == self.food[0] and new_coords[1] == self.food[1]:
                 self.eat_food()
-                self.reward = 1
+                self.reward = 10
                 self.snake_list.insert(len(self.snake_list), last_segment)
             else:
                 last_segment[0] = first_segment[0] + x_mod
@@ -168,7 +169,7 @@ class game:
 
             self.draw_update()
         else:
-            self.reward = -5
+            self.reward = -50
             self.running = False
 
         return np.array([self.get_state(), self.reward])

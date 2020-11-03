@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/jason/anaconda3/envs/MLSnake/bin/python",
+    "python.pythonPath": "C:\\Users\\jason\\anaconda3\\envs\\MLSnake\\python.exe",
     "python.formatting.provider": "autopep8",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
