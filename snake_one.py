@@ -4,37 +4,6 @@ import time
 import numpy as np
 import tkinter as tk
 
-
-def human_input(event):
-    '''
-    Changes current_direction, on a Tkinter keypress.
-    '''
-
-    global current_direction
-    if event.char == 'w':
-        current_direction = "UP"
-    if event.char == 'a':
-        current_direction = "LEFT"
-    if event.char == 's':
-        current_direction = "DOWN"
-    if event.char == 'd':
-        current_direction = "RIGHT"
-
-
-def human_game(game):
-    '''
-    >> Is a daemon thread
-
-    Steps game forwards 1 frame per 0.2 sec, for 5
-        frames per second.
-    '''
-    time.sleep(0.01)
-    while True:
-        game.step(current_direction)
-        time.sleep(0.2)
-        game.return_queue.get()
-
-
 class game:
     '''
     Creates an instance of a game. Will not advance on its own,
@@ -210,6 +179,9 @@ class game:
             Can be called from a thread, and the game will not proceed
             until this is called.
         '''
+        if action == "NONE":
+            action = self.last_action
+
         if self.last_action == "UP" and action == "DOWN":
             action = "UP"
         elif self.last_action == "DOWN" and action == "UP":
@@ -251,19 +223,3 @@ class game:
         while self.running:
             agent.step()
             agent.learn()
-
-
-#==============================================#
-
-if __name__ == "__main__":
-    import threading
-    game = game(queue.Queue(1))
-    current_direction = "RIGHT"
-
-    game.canvas.bind("<Key>", human_input)
-    game.canvas.focus_set()
-
-    thread = threading.Thread(target=human_game, args=(game,), daemon=True)
-    thread.start()
-
-    game.start(queue.Queue(1))

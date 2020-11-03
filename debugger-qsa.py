@@ -13,9 +13,12 @@ stack_size = 4
 
 tf.autograph.set_verbosity(0)
 physical_devices = tf.config.list_physical_devices("GPU")
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+try:
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+except:
+    print("No GPUs found")
 
-save_path = "./save"
+save_path = "."
 print(physical_devices)
 
 q = tf.keras.models.load_model(save_path + "/model")
@@ -26,8 +29,8 @@ snake_size = 50
 
 for x in range(0, stack_size):
     snake_lists.append(
-        [[5 + x, 7], [4 + x, 7], [3 + x, 7], [2 + x, 7], [1 + x, 7]])
-    foods.append([[7 + x, 7]])
+        [])
+    foods.append([])
 
 w = tk.Tk()
 w.geometry("950x750")
@@ -36,7 +39,7 @@ w.resizable(0, 0)
 canvas = tk.Canvas(w, bg="#000000", width=950, height=750)
 canvas.pack(side="left")
 
-value = [["n/a", "n/a", "n/a", "n/a"]]
+value = [["n/a", "n/a", "n/a", "n/a", "n/a"]]
 
 
 def draw_pixel(pos, fill):
@@ -73,13 +76,28 @@ def draw_sidebar():
                        str(frame), font=("Arial", 25))
 
     canvas.create_text(850, 60, fill="black", text="UP: " +
-                       str(value[0][0]), font=("Arial", 10))
-    canvas.create_text(850, 75, fill="black", text="DOWN: " +
-                       str(value[0][1]), font=("Arial", 10))
-    canvas.create_text(850, 90, fill="black", text="LEFT: " +
-                       str(value[0][2]), font=("Arial", 10))
-    canvas.create_text(850, 105, fill="black", text="RIGHT: " +
-                       str(value[0][3]), font=("Arial", 10))
+                       str(value[0][0]), font=("Arial", 16))
+    canvas.create_text(850, 80, fill="black", text="DOWN: " +
+                       str(value[0][1]), font=("Arial", 16))
+    canvas.create_text(850, 100, fill="black", text="LEFT: " +
+                       str(value[0][2]), font=("Arial", 16))
+    canvas.create_text(850, 120, fill="black", text="RIGHT: " +
+                       str(value[0][3]), font=("Arial", 16))
+    canvas.create_text(850, 140, fill="black", text="NONE: " +
+                       str(value[0][4]), font=("Arial", 16))
+
+    canvas.create_text(850, 220, fill="gray", text='''
+HOW TO USE:
+Click on a pixel to change its state
+Black = no pixel
+Gray = snake segment
+White = food
+
+CONTROLS:
+Arrow Keys to select frame
+Enter to evaluate frames
+Backspace to clear current frame
+''', font=("Arial", 10))
 
 
 def draw_update():
@@ -158,12 +176,18 @@ def update_value(event):
 
     draw_update()
 
+def clear_frame(event):
+    snake_lists[frame - 1] = []
+    foods[frame - 1] = []
+    draw_update()
+
 
 draw_update()
 canvas.bind("<Left>", frame_left)
 canvas.bind("<Right>", frame_right)
 canvas.bind("<Button 1>", change_pixel)
 canvas.bind("<Return>", update_value)
+canvas.bind("<BackSpace>", clear_frame)
 canvas.focus_set()
 
 while True:
