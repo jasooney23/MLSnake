@@ -15,46 +15,64 @@ import matplotlib.pyplot as plt
 
 tf.autograph.set_verbosity(0)
 physical_devices = tf.config.list_physical_devices("GPU")
-tf.config.experimental.set_memory_growth(physical_devices[0], True)
+try:
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
+except:
+    pass
 # tf.debugging.set_log_device_placement(True)
 
 save_path = "./save"
+model_path = "./model"
 print(physical_devices)
 
 
 # %%
-stack_size = 8
+stack_size = 4
 epsilon = 0.1
-discount = 0.95
-learning_rate = 0.1
+discount = 0.99
+learning_rate = 0.001
 memory_size = 100000
-batch_size = 5000
+batch_size = 32
+
+
+# %%
+def make_model():
+    # Q-Network
+    q1 = tf.keras.Sequential()
+
+    input_size = (15, 15, stack_size, 3)
+
+    q1.add(tf.keras.layers.Conv3D(15, (5, 5, 3),
+                                  activation="relu", input_shape=input_size))
+    q1.add(tf.keras.layers.Conv3D(11, (3, 3, 2),
+                                  activation="relu"))
+    q1.add(tf.keras.layers.Conv3D(9, (3, 3, 1),
+                                  activation="relu"))
+
+    q1.add(tf.keras.layers.Flatten())
+
+    q1.add(tf.keras.layers.Dense(27, activation="relu"))
+    q1.add(tf.keras.layers.Dense(5))
+
+    q1.compile(optimizer=tf.keras.optimizers.SGD(
+        learning_rate=learning_rate), loss="mse")
+    return q1
 
 
 # %%
 try:
-    with open(save_path + "/optimizer.dat", "rb") as openfile:
-        optimizer = pickle.load(openfile)
-    q = tf.keras.models.load_model(save_path + "/model")
-except:
-    optimizer = tf.keras.optimizers.SGD(learning_rate=learning_rate)
-    # Q-Network
-    q = tf.keras.Sequential()
+    q1 = tf.keras.models.load_model(save_path + "/model1")
+    q2 = tf.keras.models.load_model(save_path + "/model2")
 
-    input_size = (15, 15, stack_size)
+    print("Loaded models")
+except Exception as e:
+    print(e)
+    q1 = make_model()
+    q2 = make_model()
+    print("Created models")
 
-    q.add(tf.keras.layers.Conv2D(15, 5,
-                                 activation="relu", input_shape=input_size))
-    q.add(tf.keras.layers.Conv2D(11, 3,
-                                 activation="relu"))
-    q.add(tf.keras.layers.Conv2D(9, 3,
-                                 activation="relu"))
-    q.add(tf.keras.layers.Flatten())
-    q.add(tf.keras.layers.Dense(27, activation="relu"))
-    q.add(tf.keras.layers.Dense(4))
-    q.compile(optimizer=optimizer, loss="mse")
-
-q.summary()
+q1.summary()
+q2.summary()
 
 
 # %%
@@ -71,14 +89,24 @@ try:
         reward_memory = pickle.load(openfile)
     with open(save_path + "/transitions_memory.dat", "rb") as openfile:
         transitions_memory = pickle.load(openfile)
-except:
+
+    with open(save_path + "/scores.dat", "rb") as openfile:
+        scores = pickle.load(openfile)
+    with open(save_path + "/optimal_value.dat", "rb") as openfile:
+        optimal_value = pickle.load(openfile)
+    print("Loaded replay memory")
+except Exception as e:
+    print(e)
     update_index = 0
     filled_memory = 0
     # Replay Memory
-    states_memory = np.ndarray((memory_size, 15, 15, stack_size))
+    states_memory = np.ndarray((memory_size, 15, 15, stack_size, 3))
     action_memory = np.ndarray((memory_size))
     reward_memory = np.ndarray((memory_size))
-    transitions_memory = np.ndarray((memory_size, 15, 15, stack_size))
+    transitions_memory = np.ndarray((memory_size, 15, 15, stack_size, 3))
+    scores = []
+    optimal_value = []
+    print("Created replay memory")
 
 
 # %%
@@ -97,11 +125,14 @@ except:
 
 # %%
 class agent:
-    directions = ["UP", "DOWN", "LEFT", "RIGHT"]
-    phi = queue.deque()
+    directions = ["UP", "DOWN", "LEFT", "RIGHT", "NONE"]
 
     def __init__(self, game):
         self.game = game
+        self.phi = queue.deque()
+
+        self.max_q = 0
+        self.min_q = 0
 
     def update_memory(self, states, action, reward, transitions):
         global update_index, filled_memory
@@ -118,32 +149,60 @@ class agent:
             filled_memory += 1
 
     def stack(self, frames):
-        fstack = frames[0]
-        for x in range(1, len(frames)):
-            fstack = np.dstack((fstack, frames[x]))
+
+        fstack = np.stack(frames, axis=2)
+        # fstack = frames[0]
+        # for x in range(1, len(frames)):
+        #     frame = np.expand_dims(frames[x], axis=2)
+        #     print(fstack.shape)
+        #     print(frame.shape)
+        #     # frame = frames[x]
+        #     fstack = np.stack((fstack, frame), axis=2)
 
         return fstack
 
     def epsilon_action(self):
+        # print(len(self.phi))
+        stack = np.expand_dims(self.stack(self.phi), axis=0)
+
         if random.uniform(0, 1) <= epsilon or len(self.phi) < stack_size:
-            action = self.directions[random.randint(0, 3)]
+            action = self.directions[random.randint(0, 4)]
+
+            if random.uniform(0, 1) <= 0.5:
+                self.q_selector = 1
+            else:
+                self.q_selector = 2
+
+            # print("random")
         else:
-            action = self.directions[
-                np.argmax(
-                    q.predict(
-                        np.expand_dims(self.stack(self.phi), axis=0)))]
+            if random.uniform(0, 1) <= 0.5:
+                self.q_selector = 1
+                prediction = q1.predict(stack)
+            else:
+                self.q_selector = 2
+                prediction = q2.predict(stack)
+
+            maxq = np.argmax(prediction)
+            action = self.directions[maxq]
+            # print(prediction)
+            # print(action)
+            # print(prediction[0][maxq])
         return action
 
     def step(self):
+        if len(self.phi) == 0:
+            for x in range(stack_size):
+                self.phi.append(self.game.get_state())
+
         action = self.epsilon_action()
         state_reward = self.game.step(action)
 
         phi_last = list(self.phi)
-        self.phi.appendleft(state_reward[0])
+        self.phi.append(state_reward[0])
 
         if len(self.phi) > stack_size:
             phi_last = self.stack(phi_last)
-            self.phi.pop()
+            self.phi.popleft()
             phi_current = self.stack(self.phi)
 
             self.update_memory(phi_last, self.directions.index(
@@ -157,7 +216,7 @@ class agent:
         return indices
 
     def losses(self):
-        loss_tensor = np.ndarray((batch_size))
+        yj_tensor = np.ndarray((batch_size))
 
         indices = self.get_batch_indices(states_memory)
         states = states_memory[indices]
@@ -165,36 +224,95 @@ class agent:
         reward = reward_memory[indices]
         transitions = transitions_memory[indices]
 
-        q_phi = q.predict(states)
-        q_phi_next = q.predict(transitions)
+        if self.q_selector == 1:
+            q_phi_next = q2.predict(transitions)
+        else:
+            q_phi_next = q1.predict(transitions)
 
         for t in range(batch_size):
-            yj = reward[t] + discount * np.amax(q_phi_next[t])
-            loss_tensor[t] = math.pow(yj - q_phi[t][int(action[t])], 2)
+            if reward[t] < 0:
+                yj = reward[t]
+            else:
+                yj = reward[t] + (discount * np.amax(q_phi_next[t]))
+            yj_tensor[t] = yj
 
-        return loss_tensor
+        return states, yj_tensor
 
     def learn(self):
-        if filled_memory != 0:
-            losses = self.losses()
+        if filled_memory >= batch_size:
+            state_data, expected_data = self.losses()
 
-            gradient = optimizer.get_gradients(losses, ())
-            optimizer.apply_gradients(gradient)
+        #     before1 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
+        #     before2 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
+            # before1 = q1.get_weights()[0][0]
+            # before2 = q2.get_weights()[0][0]
+
+            if self.q_selector == 1:
+                q1.train_on_batch(state_data, expected_data)
+            else:
+                q2.train_on_batch(state_data, expected_data)
+
+            # gradient = tape.gradient()
+            # optimizer.apply_gradients(zip(self.grad(), model.trainable_variables))
+            # gradient = optimizer.get_gradients(losses, q.trainable_variables)
+            # optimizer.apply_gradients(gradient)
+
+            after1 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
+            # after2 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
+            # # # after1 = q1.get_weights()[0][0]
+            # # # after2 = q2.get_weights()[0][0]
+
+            if math.isnan(after1[0][0]):
+                print("NaN")
+
+            # print("Before 1: " + str(before1))
+            # print("After 1:  " + str(after1) + "\n--------------------------------")
+            # print("Before 2: " + str(before2))
+            # print("After 2:  " + str(after2) + "\n================================")
+
+            if np.amax(after1) > self.max_q:
+                self.max_q = np.amax(after1)
+            if np.amin(after1) > self.min_q:
+                self.min_q = np.amin(after1)
+
+
+# %%
+def plot():
+    # print("==============================")
+    # print("AVERAGE LOSS v. FRAME")
+    # plt.plot(average_loss)
+    # plt.xlabel("Frame")
+    # plt.ylabel("Average Loss")
+    # plt.show()
+    # print("==============================")
+    print("SCORE v. EPISODE")
+    plt.plot(scores)
+    plt.xlabel("Episode")
+    plt.ylabel("Score")
+    plt.show()
+    print("Q RANGE v. EPISODE")
+    plt.plot(optimal_value)
+    plt.xlabel("EPISODE")
+    plt.ylabel("Range of Q values")
+    plt.show()
+    print("==============================")
 
 
 # %%
 game = snake.game()
+x = 0
 
-for x in range(500):
-    print("Training agent on episode " + str(x))
+while True:
+    # print("Training agent on episode " + str(x))
     dqn = agent(game)
 
     game.start(dqn)
 
     if x % 10 == 0:
-        q.save(save_path + "/model", overwrite=True, include_optimizer=True)
-        with open(save_path + "/optimizer.dat", "wb") as openfile:
-            pickle.dump(optimizer, openfile)
+        q1.save(save_path + "/model1", overwrite=True, include_optimizer=True)
+        q2.save(save_path + "/model2", overwrite=True, include_optimizer=True)
+        q1.save(model_path + "1", overwrite=True, include_optimizer=True)
+        q2.save(model_path + "2", overwrite=True, include_optimizer=True)
         with open(save_path + "/update_index.dat", "wb") as openfile:
             pickle.dump(update_index, openfile)
         with open(save_path + "/filled_memory.dat", "wb") as openfile:
@@ -208,10 +326,17 @@ for x in range(500):
         with open(save_path + "/transitions_memory.dat", "wb") as openfile:
             pickle.dump(transitions_memory, openfile)
 
-    print("Finished episode " + str(x) +
-          ", agent scored " + str(game.score) + " points.")
+        with open(save_path + "/scores.dat", "wb") as openfile:
+            pickle.dump(scores, openfile)
+        with open(save_path + "/optimal_value.dat", "wb") as openfile:
+            pickle.dump(optimal_value, openfile)
 
-game.w.destroy()
+        plot()
+    x += 1
+
+    # print("Finished episode " + str(x) + ", agent scored " + str(game.score) + " points.")
+    scores.append(game.score)
+    optimal_value.append(dqn.max_q - dqn.min_q)
 
 
 # %%

@@ -21,7 +21,7 @@ except:
 save_path = "."
 print(physical_devices)
 
-q = tf.keras.models.load_model(save_path + "/model")
+q = tf.keras.models.load_model(save_path + "/model1")
 
 snake_lists = []
 foods = []
@@ -55,7 +55,7 @@ def draw_snake(snake_list):
     Draws the entire snake.
     '''
     for seg in snake_list:
-        draw_pixel(seg, "#808080")
+        draw_pixel(seg, "#ffffff")
 
 
 def draw_food(food):
@@ -63,7 +63,7 @@ def draw_food(food):
     Draws the food.
     '''
     for f in food:
-        draw_pixel(f, "#ffffff")
+        draw_pixel(f, "#ff0000")
 
 
 def draw_sidebar():
@@ -150,18 +150,16 @@ def change_pixel(event):
 
 
 def get_state(snake_list, food):
-    state = np.zeros((15, 15))
+    state = np.zeros((15, 15, 3))
     for seg in snake_list:
-        state[seg[1]][seg[0]] = 0.5
+        state[seg[1]][seg[0]] = [1, 1, 1]
 
-    state[food[1]][food[0]] = 1
+    state[food[1]][food[0]] = [1, 0, 0]
     return state
 
 
 def stack(frames):
-    fstack = frames[0]
-    for x in range(1, len(frames)):
-        fstack = np.dstack((fstack, frames[x]))
+    fstack = np.stack(frames, axis=2)
 
     return fstack
 

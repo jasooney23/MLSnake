@@ -35,11 +35,11 @@ class game:
         #============================================== #
 
     def get_state(self):
-        state = np.zeros((15, 15))
+        state = np.zeros((15, 15, 3))
         for seg in self.snake_list:
-            state[seg[1]][seg[0]] = 0.5
+            state[seg[1]][seg[0]] = [1, 1, 1]
 
-        state[self.food[1]][self.food[0]] = 100
+        state[self.food[1]][self.food[0]] = [1, 0, 0]
         return state
 
     def distance_to_food(self, seg):
@@ -64,13 +64,13 @@ class game:
         Draws the entire snake.
         '''
         for seg in self.snake_list:
-            self.draw_pixel(seg, "#808080")
+            self.draw_pixel(seg, "#ffffff")
 
     def draw_food(self):
         '''
         Draws the food.
         '''
-        self.draw_pixel(self.food, "#ffffff")
+        self.draw_pixel(self.food, "#ff0000")
 
     def draw_update(self):
         '''
@@ -160,7 +160,7 @@ class game:
 
             if new_coords[0] == self.food[0] and new_coords[1] == self.food[1]:
                 self.eat_food()
-                self.reward = 10
+                self.reward = 1
                 self.snake_list.insert(len(self.snake_list), last_segment)
             else:
                 last_segment[0] = first_segment[0] + x_mod
@@ -169,7 +169,7 @@ class game:
 
             self.draw_update()
         else:
-            self.reward = -50
+            self.reward = -1
             self.running = False
 
         return np.array([self.get_state(), self.reward])
@@ -204,18 +204,18 @@ class game:
             steps.
         '''
 
-        # ============================================== #
+        # ==============================================#
         self.running = True
         self.alive = True
         self.reward = 0.1
         self.score = 0
 
         self.snake_list = [[5, 7], [4, 7], [3, 7], [2, 7], [1, 7]]
-        self.food = [7, 7]
+        self.food = [10, 7]
 
         self.agent = agent
         self.last_action = "RIGHT"
-        #============================================== #
+        #==============================================#
 
         self.draw_update()
 
