@@ -30,7 +30,7 @@ print(physical_devices)
 stack_size = 4
 epsilon = 0.1
 discount = 0.99
-learning_rate = 0.001
+learning_rate = 0.0001
 memory_size = 100000
 batch_size = 32
 
@@ -205,8 +205,9 @@ class agent:
             self.phi.popleft()
             phi_current = self.stack(self.phi)
 
-            self.update_memory(phi_last, self.directions.index(
-                action), state_reward[1], phi_current)
+            if state_reward[1] != 0 or random.randint(0, 1) != 0:
+                self.update_memory(phi_last, self.directions.index(
+                    action), state_reward[1], phi_current)
 
     def get_batch_indices(self, memory):
         indices = []
@@ -236,14 +237,19 @@ class agent:
                 yj = reward[t] + (discount * np.amax(q_phi_next[t]))
             yj_tensor[t] = yj
 
-        return states, yj_tensor
+            if reward[t] == 1 or reward[t] == -1:
+                print_data = True
+            else:
+                print_data = False
+
+        return states, yj_tensor, print_data
 
     def learn(self):
         if filled_memory >= batch_size:
-            state_data, expected_data = self.losses()
+            state_data, expected_data, print_data = self.losses()
 
-        #     before1 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
-        #     before2 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
+            # before1 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
+            # before2 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
             # before1 = q1.get_weights()[0][0]
             # before2 = q2.get_weights()[0][0]
 
@@ -265,10 +271,11 @@ class agent:
             if math.isnan(after1[0][0]):
                 print("NaN")
 
-            # print("Before 1: " + str(before1))
-            # print("After 1:  " + str(after1) + "\n--------------------------------")
-            # print("Before 2: " + str(before2))
-            # print("After 2:  " + str(after2) + "\n================================")
+            # if print_data:
+            #     print("Before 1: " + str(before1))
+            #     print("After 1:  " + str(after1) + "\n--------------------------------")
+            #     print("Before 2: " + str(before2))
+            #     print("After 2:  " + str(after2) + "\n================================")
 
             if np.amax(after1) > self.max_q:
                 self.max_q = np.amax(after1)
