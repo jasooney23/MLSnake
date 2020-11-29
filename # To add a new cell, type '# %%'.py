@@ -27,11 +27,11 @@ print(physical_devices)
 
 
 # %%
-stack_size = 4
+stack_size = 1
 epsilon = 0.1
 discount = 0.99
 learning_rate = 0.0001
-memory_size = 100000
+memory_size = 10000
 batch_size = 32
 
 
@@ -42,9 +42,9 @@ def make_model():
 
     input_size = (15, 15, stack_size, 3)
 
-    q1.add(tf.keras.layers.Conv3D(15, (5, 5, 3),
+    q1.add(tf.keras.layers.Conv3D(15, (5, 5, 1),
                                   activation="relu", input_shape=input_size))
-    q1.add(tf.keras.layers.Conv3D(11, (3, 3, 2),
+    q1.add(tf.keras.layers.Conv3D(11, (3, 3, 1),
                                   activation="relu"))
     q1.add(tf.keras.layers.Conv3D(9, (3, 3, 1),
                                   activation="relu"))
@@ -205,9 +205,9 @@ class agent:
             self.phi.popleft()
             phi_current = self.stack(self.phi)
 
-            if state_reward[1] != 0 or random.randint(0, 1) != 0:
-                self.update_memory(phi_last, self.directions.index(
-                    action), state_reward[1], phi_current)
+            # if state_reward[1] != 0 or random.randint(0, 4) != 0:
+            self.update_memory(phi_last, self.directions.index(
+                action), state_reward[1], phi_current)
 
     def get_batch_indices(self, memory):
         indices = []
@@ -245,7 +245,7 @@ class agent:
         return states, yj_tensor, print_data
 
     def learn(self):
-        if filled_memory >= batch_size:
+        if filled_memory == memory_size:
             state_data, expected_data, print_data = self.losses()
 
             # before1 = q1.predict(np.expand_dims(self.stack(self.phi), axis=0))
@@ -315,7 +315,7 @@ while True:
 
     game.start(dqn)
 
-    if x % 10 == 0:
+    if x % 1000 == 0:
         q1.save(save_path + "/model1", overwrite=True, include_optimizer=True)
         q2.save(save_path + "/model2", overwrite=True, include_optimizer=True)
         q1.save(model_path + "1", overwrite=True, include_optimizer=True)
@@ -343,6 +343,8 @@ while True:
 
     # print("Finished episode " + str(x) + ", agent scored " + str(game.score) + " points.")
     scores.append(game.score)
+    print(dqn.max_q)
+    print(dqn.min_q)
     optimal_value.append(dqn.max_q - dqn.min_q)
 
 

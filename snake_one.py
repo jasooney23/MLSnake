@@ -160,7 +160,7 @@ class game:
 
             if new_coords[0] == self.food[0] and new_coords[1] == self.food[1]:
                 self.eat_food()
-                self.reward = 1
+                self.reward = 10
                 self.snake_list.insert(len(self.snake_list), last_segment)
             else:
                 last_segment[0] = first_segment[0] + x_mod
