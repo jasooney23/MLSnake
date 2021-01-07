@@ -1,13 +1,13 @@
 import tensorflow as tf
 import numpy as np
 import tkinter as tk
-import snake_one as snake
+import Adjustable_Snake as snake
 import pickle
 import math
 
 #============================================#
 
-stack_size = 1
+stack_size = 2
 
 #============================================#
 
@@ -25,7 +25,10 @@ q = tf.keras.models.load_model(save_path + "/model1")
 
 snake_lists = []
 foods = []
-snake_size = 50
+
+game_size = 32
+screen_size = 900
+snake_size = screen_size / game_size
 
 for x in range(0, stack_size):
     snake_lists.append(
@@ -33,10 +36,11 @@ for x in range(0, stack_size):
     foods.append([])
 
 w = tk.Tk()
-w.geometry("950x750")
+w.geometry(str(screen_size + 200) + "x" + str(screen_size))
 w.resizable(0, 0)
 
-canvas = tk.Canvas(w, bg="#000000", width=950, height=750)
+canvas = tk.Canvas(w, bg="#000000", width=screen_size +
+                   200, height=screen_size)
 canvas.pack(side="left")
 
 value = [["n/a", "n/a", "n/a", "n/a", "n/a"]]
@@ -67,26 +71,26 @@ def draw_food(food):
 
 
 def draw_sidebar():
-    for x in range(15, 20):
-        for y in range(0, 15):
-            canvas.create_rectangle(x * snake_size, y * snake_size,
-                                    (x + 1)*snake_size, (y + 1)*snake_size, fill="white", outline="white")
+    for x in range(0, 5):
+        for y in range(0, 18):
+            canvas.create_rectangle(screen_size + x * 50, y * 50,
+                                    screen_size + (x + 1) * 50, (y + 1) * 50, fill="white", outline="white")
 
-    canvas.create_text(850, 20, fill="black", text="Frame " +
+    canvas.create_text(screen_size + 100, 20, fill="black", text="Frame " +
                        str(frame), font=("Arial", 25))
 
-    canvas.create_text(850, 60, fill="black", text="UP: " +
+    canvas.create_text(screen_size + 100, 60, fill="black", text="UP: " +
                        str(value[0][0]), font=("Arial", 13))
-    canvas.create_text(850, 80, fill="black", text="DOWN: " +
+    canvas.create_text(screen_size + 100, 80, fill="black", text="DOWN: " +
                        str(value[0][1]), font=("Arial", 13))
-    canvas.create_text(850, 100, fill="black", text="LEFT: " +
+    canvas.create_text(screen_size + 100, 100, fill="black", text="LEFT: " +
                        str(value[0][2]), font=("Arial", 13))
-    canvas.create_text(850, 120, fill="black", text="RIGHT: " +
+    canvas.create_text(screen_size + 100, 120, fill="black", text="RIGHT: " +
                        str(value[0][3]), font=("Arial", 13))
-    canvas.create_text(850, 140, fill="black", text="NONE: " +
+    canvas.create_text(screen_size + 100, 140, fill="black", text="NONE: " +
                        str(value[0][4]), font=("Arial", 13))
 
-    canvas.create_text(850, 220, fill="gray", text='''
+    canvas.create_text(screen_size + 100, 220, fill="gray", text='''
 HOW TO USE:
 Click on a pixel to change its state
 Black = no pixel
@@ -137,7 +141,7 @@ def change_pixel(event):
     coord = [math.floor(event.x / snake_size),
              math.floor(event.y / snake_size)]
 
-    if coord[0] >= 0 and coord[0] <= 14 and coord[1] >= 0 and coord[1] <= 14:
+    if coord[0] >= 0 and coord[0] <= game_size - 1 and coord[1] >= 0 and coord[1] <= game_size - 1:
         if coord in snake_lists[frame - 1]:
             snake_lists[frame - 1].remove(coord)
             foods[frame - 1].append(coord)
@@ -150,7 +154,7 @@ def change_pixel(event):
 
 
 def get_state(snake_list, food):
-    state = np.zeros((15, 15, 3))
+    state = np.zeros((game_size, game_size, 3))
     for seg in snake_list:
         state[seg[1]][seg[0]] = [1, 1, 1]
 
