@@ -1,5 +1,6 @@
 # MLSnake
 
-A machine learning project that utilizes Deep Q Learning to train an agent to play the game Snake. Unfortunately, there's no documentation yet :(
+A machine learning project that utilizes Deep Q Learning to train an agent to play the game Snake. 
 
-malfoy.ipynb is the latest version of the program.
+Tape.ipynb is the latest iteration of the program.
+Use model-v-human.py to play against the agent.
