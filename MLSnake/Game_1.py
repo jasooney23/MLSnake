@@ -10,7 +10,7 @@ import time
 import numpy as np
 import tkinter as tk
 import math
-
+from . import config as cfg
 
 class game:
     '''Creates an instance of a game. The game shows a window,
@@ -19,39 +19,15 @@ class game:
     def __init__(self):
         '''Init function.'''
 
-        # ============================================== #
-
-        # Size of one side of the game, in snake_size pixels (e.g. game_size 20 is 20x20 snake_size pixels).
-        # snake_size pixels refers to an in-game pixel, whose size varies based on game_size.
-        self.game_size = 15
-
-        # The size of the window, in physical pixels (e.g. screen_size 1000 is 1000x1000 physical pixels).
-        # Physical pixels refers to the literal pixels in a display.
-        self.screen_size = 800
-
-        # The reward for moving nearer to the food.
-        self.reward_closer = 0.05
-        # The punishment for moving further from the food.
-        self.reward_further = -0.05
-        # The reward for eating the food.
-        self.reward_eat = 1
-        # The punishment for dying.
-        self.reward_death = -10
-
-        #============================================== #
-
-        # The size of one in-game pixel.
-        self.snake_size = self.screen_size / self.game_size
-
         # Create the window of appropriate size. 200 physical pixels are added to the window, giving space for debug info.
         self.w = tk.Tk()
-        self.w.geometry(str(self.screen_size + 200) +
-                        "x" + str(self.screen_size))
+        self.w.geometry(str(cfg.screen_size + 200) +
+                        "x" + str(cfg.screen_size))
         self.w.resizable(0, 0)
 
         # Define the canvas, which the pixels are drawn on.
         self.canvas = tk.Canvas(self.w, bg="#000000",
-                                width=self.screen_size + 200, height=self.screen_size)
+                                width=cfg.screen_size + 200, height=cfg.screen_size)
         self.canvas.pack()
 
     # ====================================================================== #
@@ -62,7 +38,7 @@ class game:
         '''Gets the current visual state of the game in pixels, and returns it as a 2D NumPy array.'''
 
         # Begin with all pixels as unoccupied, empty pixels.
-        state = np.zeros((self.game_size, self.game_size))
+        state = np.zeros((cfg.game_size, cfg.game_size))
 
         # Set the snake pixels.
         for seg in self.snake_list:
@@ -91,8 +67,8 @@ class game:
            Function Parameters:
            pos <int[2]> = position for the pixel to be drawn in.'''
 
-        self.canvas.create_rectangle(pos[0] * self.snake_size, pos[1] * self.snake_size,
-                                     (pos[0] + 1) * self.snake_size, (pos[1] + 1) * self.snake_size, fill=fill)
+        self.canvas.create_rectangle(pos[0] * cfg.snake_size, pos[1] * cfg.snake_size,
+                                     (pos[0] + 1) * cfg.snake_size, (pos[1] + 1) * cfg.snake_size, fill=fill)
 
     def draw_snake(self):
         '''Draws the entire snake.'''
@@ -114,18 +90,18 @@ class game:
         # Draw it 5 * 50 physical pixels wide, and 18 * 50 tall.
         for x in range(0, 5):
             for y in range(0, 18):
-                self.canvas.create_rectangle(self.screen_size + x * 50, y * 50,
-                                             self.screen_size + (x + 1) * 50, (y + 1) * 50, fill="white", outline="white")
+                self.canvas.create_rectangle(cfg.screen_size + x * 50, y * 50,
+                                             cfg.screen_size + (x + 1) * 50, (y + 1) * 50, fill="white", outline="white")
 
-        self.canvas.create_text(self.screen_size + 100, 60, fill="black", text="UP: " +
+        self.canvas.create_text(cfg.screen_size + 100, 60, fill="black", text="UP: " +
                                 str(values[0][0]), font=("Arial", 13))
-        self.canvas.create_text(self.screen_size + 100, 80, fill="black", text="DOWN: " +
+        self.canvas.create_text(cfg.screen_size + 100, 80, fill="black", text="DOWN: " +
                                 str(values[0][1]), font=("Arial", 13))
-        self.canvas.create_text(self.screen_size + 100, 100, fill="black", text="LEFT: " +
+        self.canvas.create_text(cfg.screen_size + 100, 100, fill="black", text="LEFT: " +
                                 str(values[0][2]), font=("Arial", 13))
-        self.canvas.create_text(self.screen_size + 100, 120, fill="black", text="RIGHT: " +
+        self.canvas.create_text(cfg.screen_size + 100, 120, fill="black", text="RIGHT: " +
                                 str(values[0][3]), font=("Arial", 13))
-        self.canvas.create_text(self.screen_size + 100, 140, fill="black", text="NONE: " +
+        self.canvas.create_text(cfg.screen_size + 100, 140, fill="black", text="NONE: " +
                                 str(values[0][4]), font=("Arial", 13))
 
     def draw_update(self, values):
@@ -156,8 +132,8 @@ class game:
 
         # Keep trying to place the food until it's placed in a valid spot.
         while True:
-            self.food[0] = random.randint(0, self.game_size - 1)
-            self.food[1] = random.randint(0, self.game_size - 1)
+            self.food[0] = random.randint(0, cfg.game_size - 1)
+            self.food[1] = random.randint(0, cfg.game_size - 1)
 
             # Make sure that the food doesn't occupy the same space as the snake.
             for seg in self.snake_list:
@@ -190,7 +166,7 @@ class game:
         loc_alive = True
 
         # If out-of-bounds.
-        if segment[0] < 0 or segment[0] >= self.game_size or segment[1] < 0 or segment[1] >= self.game_size:
+        if segment[0] < 0 or segment[0] >= cfg.game_size or segment[1] < 0 or segment[1] >= cfg.game_size:
             loc_alive = False
 
         # If colliding (in the same space) with any snake segments.
@@ -244,15 +220,15 @@ class game:
         if self.alive:
             # Reward the agent for moving closer towards the food; punish it for moving further away.
             if self.distance_to_food(new_coords) < self.distance_to_food(first_segment):
-                self.reward = self.reward_closer
+                self.reward = cfg.reward_closer
             elif self.distance_to_food(new_coords) > self.distance_to_food(first_segment):
-                self.reward = self.reward_further
+                self.reward = cfg.reward_further
 
             # If the new head position would also overlap with the position of the food, increase the length of the snake.
             if new_coords[0] == self.food[0] and new_coords[1] == self.food[1]:
                 self.eat_food()
                 # Reward the agent for eating the food.
-                self.reward = self.reward_eat
+                self.reward = cfg.reward_eat
                 # Place the removed tail segment back to the end, because the new head segment has instead been placed by eat_food().
                 self.snake_list.insert(len(self.snake_list), last_segment)
             else:
@@ -267,7 +243,7 @@ class game:
         # If the new snake after movement causes death.
         else:
             # Punish the agent for dying.
-            self.reward = self.reward_death
+            self.reward = cfg.reward_death
             self.running = False
 
             # Replace the tail segment to the end. This way, the game doesn't show the snake fusing into itself after it's died.
@@ -320,12 +296,12 @@ class game:
 
         # Initialize the snake with length 5 near the middle of the screen.
         for x in range(5):
-            self.snake_list.append([math.floor(self.game_size * 3/8 - x),
-                                    math.floor(self.game_size * 1 / 2)])
+            self.snake_list.append([math.floor(cfg.game_size * 3/8 - x),
+                                    math.floor(cfg.game_size * 1 / 2)])
 
         # Initialize the food.
-        self.food = [math.floor(self.game_size * 2/3),
-                     math.floor(self.game_size * 1/2)]
+        self.food = [math.floor(cfg.game_size * 2/3),
+                     math.floor(cfg.game_size * 1/2)]
 
         # Randomize first food placement.
         self.place_food()
