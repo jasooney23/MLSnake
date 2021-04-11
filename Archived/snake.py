@@ -123,12 +123,7 @@ class game:
         which calls both eat_food() and detect_dead().
     '''
 
-    def eat_food(self):
-        '''
-        Eats the food, increases length, and repositions the food.
-        '''
-        self.snake_list.insert(0, [self.food[0], self.food[1]])
-
+    def place_food(self):
         placed_food = False
         while not placed_food:
             self.food[0] = random.randint(0, 14)
@@ -137,6 +132,14 @@ class game:
                 if not seg[0] == self.food[0] or not seg[1] == self.food[1]:
                     placed_food = True
                     break
+
+    def eat_food(self):
+        '''
+        Eats the food, increases length, and repositions the food.
+        '''
+        self.snake_list.insert(0, [self.food[0], self.food[1]])
+
+        self.place_food()
 
         self.score += 1
         self.reward = 1
@@ -242,6 +245,7 @@ class game:
 
         self.snake_list = [[5, 7], [4, 7], [3, 7], [2, 7], [1, 7]]
         self.food = [12, 7]
+        self.place_food()
 
         self.step_queue = queue.Queue(1)
         self.return_queue = return_queue
