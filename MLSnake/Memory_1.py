@@ -90,7 +90,7 @@ def load_memory():
 # =================================================================== #
 
 def save_models(q, target_q):
-    q.save(cfg.save_path + "/model1", overwrite=True, include_optimizer=True)
+    q.save(cfg.save_path + "/model", overwrite=True, include_optimizer=True)
     target_q.save(cfg.save_path + "/target_q", overwrite=True, include_optimizer=True)
 
 def save_data(train_data, stats):
