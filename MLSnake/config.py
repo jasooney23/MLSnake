@@ -9,7 +9,7 @@ stack_size = 3  # Phi; amount of frames the agent sees e.g. stack_size 4 means t
 
 
 # The epsilon-greedy slope stops changing after this many episodes.
-explore_count = 1000
+explore_count = 10000
 start_epsilon = 1           # The epsilon slope begins at this float.
 end_epsilon = 0.1           # The epsilon slope stops at this float.
 
@@ -25,7 +25,7 @@ learning_rate = 0.01   # AKA step size.
 c = 5000
 
 
-memory_size = 50000  # The size of the replay memory.
+memory_size = 100000  # The size of the replay memory.
 batch_size = 32     # The mini-batch size used for a gradient descent step.
 
 # The possible actions that the agent can take each frame.
@@ -50,11 +50,11 @@ reward_further = -0.05
 # The reward for eating the food.
 reward_eat = 1
 # The punishment for dying.
-reward_death = -10
+reward_death = -1
 
 # The size of one in-game pixel.
 snake_size = screen_size / game_size
 
 #============================================== #
 
-autosave_period = 250
+autosave_period = 1000
