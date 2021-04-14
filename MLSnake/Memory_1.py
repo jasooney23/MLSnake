@@ -23,8 +23,8 @@ def make_model():
     # 5 outputs for 5 different actions.
     q.add(tf.keras.layers.Dense(cfg.num_actions))
 
-    q.compile(optimizer=tf.keras.optimizers.Adam(
-        learning_rate=cfg.learning_rate), loss=tf.keras.losses.Huber(), run_eagerly=True)
+    q.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=cfg.learning_rate,
+                momentum=cfg.rms_momentum), loss=tf.keras.losses.Huber(), run_eagerly=True)
 
     return q
 

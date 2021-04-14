@@ -18,7 +18,7 @@ end_epsilon = 0.1           # The epsilon slope stops at this float.
 # should care about prioritizing the future vs. the present.
 discount = 0.99
 
-learning_rate = 0.01   # AKA step size.
+learning_rate = 0.1   # AKA step size.
 
 # The target Q-network (Q-hat) is reset to the behaviour Q-net after this
 # many frames.
@@ -58,3 +58,5 @@ snake_size = screen_size / game_size
 #============================================== #
 
 autosave_period = 1000
+
+rms_momentum = 0.95

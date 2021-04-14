@@ -188,7 +188,7 @@ class agent:
         # Set the target Q-network value to zero if the state is terminal.
         dones = []
         for t in range(cfg.batch_size):
-            if rewards[t] < 0:
+            if rewards[t] == cfg.reward_death:
                 dones.append(1.0)
             else:
                 dones.append(0.0)
