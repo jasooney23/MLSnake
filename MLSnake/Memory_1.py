@@ -40,7 +40,8 @@ def make_data():
 
     # Stats.
     stats = {
-        "score": [0]     # Score per episode.
+        "score": [0],     # Score per episode.
+        "loss": [0]      # Loss per frame.
     }
 
     return train_data, stats

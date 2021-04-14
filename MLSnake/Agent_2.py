@@ -105,9 +105,9 @@ class agent:
         # Call np.expand_dims so that it can be used as input to the model.
         stack = np.expand_dims(self.stack(self.phi), axis=0)
 
-        # Calculate the percentage of episodes played in relation to explore_count, and
+        # Calculate the percentage of frames played in relation to explore_count, and
         # cap it at 100% (stored as 1.0f in code).
-        explore_count_percent = len(self.stats["score"]) / cfg.explore_count
+        explore_count_percent = len(self.stats["loss"]) / cfg.explore_count
         if explore_count_percent > 1:
             explore_count_percent = 1
 
@@ -202,7 +202,8 @@ class agent:
         for i in range(0, cfg.batch_size):
             targets[i][int(actions[i])] = yj[i]
 
-        self.q.train_on_batch(states, targets)
+        losses = self.q.train_on_batch(states, targets)
+        self.stats["loss"].append(losses)
 
         # If the learning rate is too large and causes the model to diverge to infinity, let the user know.
         if math.isnan(targets[0][0]):

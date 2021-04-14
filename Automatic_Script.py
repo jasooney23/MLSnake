@@ -26,6 +26,8 @@ while True:
         snake_agent.save_all()
         print("Average score: " +
               str(sum(snake_agent.stats["score"]) / len(snake_agent.stats["score"])))
+        print("Average loss: " +
+              str(sum(snake_agent.stats["loss"]) / len(snake_agent.stats["loss"])))
     x += 1
 
     # Trackthe score/performance of the agent.
