@@ -8,9 +8,9 @@ from . import config as cfg
 # =================================================================== #
 
 
-def make_model():
+def make_model(name):
     '''Creates a tf.keras.Sequential model with numerous hidden layers.'''
-    q = tf.keras.Sequential()
+    q = tf.keras.Sequential(name=name)
 
     # The input tensor to the model.
     input_size = (cfg.game_size * cfg.game_size * cfg.stack_size,)
@@ -24,7 +24,7 @@ def make_model():
     q.add(tf.keras.layers.Dense(cfg.num_actions))
 
     q.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=cfg.learning_rate,
-                momentum=cfg.rms_momentum), loss=tf.keras.losses.Huber(), run_eagerly=True)
+                                                    momentum=cfg.rms_momentum), loss=tf.keras.losses.Huber(), run_eagerly=True)
 
     return q
 
@@ -69,8 +69,8 @@ def load_models():
         target_q = tf.keras.models.load_model(cfg.save_path + "/target_model")
     except Exception as e:
         print(e)
-        q = make_model()
-        target_q = make_model()
+        q = make_model("DQN")
+        target_q = make_model("Target_DQN")
 
     return q, target_q
 
