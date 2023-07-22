@@ -8,6 +8,10 @@
 
 
 # Import packages.
+
+
+
+
 import numpy as np
 import random
 import time
@@ -40,14 +44,14 @@ class game:
         '''Gets the current visual state of the game in pixels, and returns it as a 2D NumPy array.'''
 
         # Begin with all pixels as unoccupied, empty pixels.
-        state = np.zeros((cfg.game_size, cfg.game_size))
+        state = np.zeros((cfg.game_size, cfg.game_size), dtype=cfg.memtype)
 
         # Set the snake pixels.
         for seg in self.snake_list:
-            state[seg[1]][seg[0]] = 0.5
+            state[seg[1]][seg[0]] = 1
 
         # Set the food pixel.
-        state[self.food[1]][self.food[0]] = 1
+        state[self.food[1]][self.food[0]] = 2
 
         return state
 
@@ -255,7 +259,7 @@ class game:
             self.draw_update(values)
 
         # Return the current state of the game, and the reward that the agent receives for its action.
-        return np.array([self.get_state(), self.reward])
+        return [self.get_state(), self.reward]
 
     def step(self, action, values):
         '''The agent calls this function when it is ready to advance the game.

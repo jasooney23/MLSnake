@@ -1,3 +1,3 @@
-call conda activate MLSnake
+call conda activate tf
 call python Automatic_Script.py
 PAUSE

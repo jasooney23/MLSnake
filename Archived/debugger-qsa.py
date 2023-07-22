@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import tkinter as tk
-import Adjustable_Snake as snake
+from . import Game_2 as snake
 import pickle
 import math
 

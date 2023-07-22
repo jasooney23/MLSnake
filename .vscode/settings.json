@@ -1,8 +1,10 @@
 {
-    "python.pythonPath": "C:\\Users\\jason\\anaconda3\\envs\\MLSnake\\python.exe",
+    "python.pythonPath": "C:\\Users\\jason\\anaconda3\\envs\\tf\\python.exe",
+    "python.venvPath": "C:\\Users\\jason\\anaconda3\\envs",
     "python.formatting.provider": "autopep8",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "git.ignoreLimitWarning": true,
-    "jupyter.jupyterServerType": "local"
+    "jupyter.jupyterServerType": "local",
+    "terminal.integrated.automationShell.windows": "C:\\Windows\\System32\\cmd.exe"
 }

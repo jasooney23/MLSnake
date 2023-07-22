@@ -1,15 +1,19 @@
+import numpy as np
+import math
+
 # Save directory, includes model and replay memory.
 save_path = "./save"
+backup_path = "./backup_save"
 
 
 # Hyperparameters below control the training of the agent.
 
-stack_size = 3  # Phi; amount of frames the agent sees e.g. stack_size 4 means the agent sees the
+stack_size = 5  # Phi; amount of frames the agent sees e.g. stack_size 4 means the agent sees the
 # last 4 frames.
 
 
 # The epsilon-greedy slope stops changing after this many frames.
-explore_count = 1000000
+explore_count = 100000
 start_epsilon = 1           # The epsilon slope begins at this float.
 end_epsilon = 0.1           # The epsilon slope stops at this float.
 
@@ -18,14 +22,14 @@ end_epsilon = 0.1           # The epsilon slope stops at this float.
 # should care about prioritizing the future vs. the present.
 discount = 0.99
 
-learning_rate = 0.1   # AKA step size.
+learning_rate = 0.0001   # AKA step size.
 
 # The target Q-network (Q-hat) is reset to the behaviour Q-net after this
 # many frames.
-c = 10000
+c = 1000
 
 
-memory_size = 1000000  # The size of the replay memory.
+memory_size = 100000  # The size of the replay memory.
 batch_size = 32     # The mini-batch size used for a gradient descent step.
 
 # The possible actions that the agent can take each frame.
@@ -40,13 +44,14 @@ num_actions = len(directions)
 game_size = 15
 
 # The size of the window, in physical pixels (e.g. screen_size 1000 is 1000x1000 physical pixels).
-# Physical pixels refers to the literal pixels in a display.
-screen_size = 800
+# Physical pixels refers to the literal pixels in a display. Add 200 to this number because of the
+# sidebar.
+screen_size = 720
 
 # The reward for moving nearer to the food.
-reward_closer = 0.05
+reward_closer = 0
 # The punishment for moving further from the food.
-reward_further = -0.05
+reward_further = 0
 # The reward for eating the food.
 reward_eat = 1
 # The punishment for dying.
@@ -60,3 +65,15 @@ snake_size = screen_size / game_size
 autosave_period = 1000
 
 rms_momentum = 0.95
+
+memtype = np.int8
+
+slowmode = False
+slowdelay = 0.2
+
+
+# Disable epsilon, always take the best action.
+# Use to evaluate the best possible performance.
+performance_mode = False
+
+#============================================== #
