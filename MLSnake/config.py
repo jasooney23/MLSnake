@@ -28,7 +28,6 @@ learning_rate = 0.0001   # AKA step size.
 # many frames.
 c = 1000
 
-
 memory_size = 100000  # The size of the replay memory.
 batch_size = 32     # The mini-batch size used for a gradient descent step.
 

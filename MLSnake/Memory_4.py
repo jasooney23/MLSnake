@@ -96,6 +96,8 @@ def load_models():
             q = make_model("DQN1")
             target_q = make_model("DQN2")
 
+    print("Total VRAM used after loading models: " + str(tf.config.experimental.get_memory_info('GPU:0')["current"]/(10**9)) + " GB")
+
     # q.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=cfg.learning_rate,
     #                                                 momentum=cfg.rms_momentum), loss=tf.keras.losses.Huber(), run_eagerly=True)
 
