@@ -1,4 +1,5 @@
 ### MLSnake
+___Code last updated 22-07-2023___
 
 A machine learning project that utilizes Deep Q Learning to train an agent to play the "snake" game. Written mainly in Python and TensorFlow. With only a couple hours of training, the newest agent is regularly able to achieve scores similar to or better than my own. 
 
@@ -10,4 +11,10 @@ Features:
 
 Please note that some of the documentation is OUT OF DATE or rudimentary, as this repository is used personally only (as such there is no need for extensive documentation).
 
+If you would like to test out the code:
+1. Clone this repo
+2. Install NumPy and TensorFlow (recommended that you install a gpu-compatible version)
+3. Run ```python Automatic_Script.py```
+4. Watch it learn!
 
+The first little while it will not be very good - it spends this time exploring the environment. It will take some time before it starts to "get" the game, but it's all uphill after that.
